@@ -56,10 +56,9 @@ export default {
   list-style: none;
   display: flex;
   margin: 0;
-  padding: 0;
+  padding: 0 50px; /* 加入 padding 確保內距 */
   flex-wrap: nowrap;
   overflow: hidden;
-  margin-right: 20px; /* 增加右邊 margin，避免文字超出 */
 }
 .nav ul.mobile {
   flex-direction: column;
@@ -73,7 +72,7 @@ export default {
   margin: 10px 0;
 }
 .nav ul li {
-  margin-left: 15px;
+  margin-left: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
