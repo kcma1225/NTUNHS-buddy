@@ -1,134 +1,31 @@
 .header-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
-  background-color: #1a472a; /* 深綠色背景 */
+  padding: 0.5rem 1rem;
+  background-color: #003618;
   color: white;
-  z-index: 1000;
-}
-
-.logo-container {
-  display: flex;
-  align-items: center;
 }
 
 .logo {
   height: 40px;
-  margin-right: 1rem;
 }
 
-.nav-links {
+.nav-links ul {
   list-style: none;
   display: flex;
-  align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .nav-links a {
+  color: white;
   text-decoration: none;
-  color: white;
-  transition: color 0.3s;
 }
 
-.nav-links a.highlight {
-  font-style: italic;
-}
-
-.nav-links a:hover {
-  color: #f0a500; /* 滑鼠懸停時的顏色變化 */
-}
-
-.login-button {
-  cursor: pointer;
-  color: white;
-  font-weight: bold;
-}
-
-.login-popup {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: #f4f4f4;
-  padding: 2rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  border-radius: 10px;
-  z-index: 2000;
-  width: 90%;
-  max-width: 400px;
-}
-
-.login-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.close-button {
-  align-self: flex-end;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-}
-
-.logo-container-popup {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.logo-popup {
-  height: 40px;
-  margin-right: 1rem;
-}
-
-.title-popup {
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
-.form-group {
-  width: 100%;
-  margin-bottom: 1rem;
-}
-
-input {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 1rem;
-}
-
-.form-actions {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-}
-
-.forgot-password-button {
-  background: none;
-  border: none;
-  color: #1a472a;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-.login-submit-button {
-  background-color: #1a472a;
+.login-btn {
+  background-color: #009944;
   color: white;
   border: none;
   padding: 0.5rem 1rem;
-  border-radius: 5px;
   cursor: pointer;
-}
-
-.login-submit-button:hover {
-  background-color: #145a34;
 }

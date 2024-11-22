@@ -1,24 +1,31 @@
 <template>
   <div id="app">
-    <HeaderBar />
-    <main>
-      <h1>歡迎來到北護課程查詢系統！</h1>
-      <p>請使用上方導覽列進行操作。</p>
-    </main>
+    <Header :isLoginVisible="isLoginVisible" @open-login="showLoginPopup" />
+    <LoginPopup v-if="isLoginVisible" @close-login="hideLoginPopup" />
   </div>
 </template>
 
 <script>
-import HeaderBar from './components/HeaderBar.vue';
-import './assets/css/app.css';
+import Header from './components/Header.vue';
+import LoginPopup from './components/LoginPopup.vue';
 
 export default {
-  name: 'App',
   components: {
-    HeaderBar,
+    Header,
+    LoginPopup,
   },
-  mounted() {
-    window.scrollTo(0, 0);
+  data() {
+    return {
+      isLoginVisible: false,
+    };
+  },
+  methods: {
+    showLoginPopup() {
+      this.isLoginVisible = true;
+    },
+    hideLoginPopup() {
+      this.isLoginVisible = false;
+    },
   },
 };
 </script>

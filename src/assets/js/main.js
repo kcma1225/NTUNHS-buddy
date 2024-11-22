@@ -1,3 +1,6 @@
-import { initializeApp } from './assets/js/init';
+import { createApp } from 'vue';
+import App from '../App.vue';
+import '../css/main.css';
+import '../css/responsive.css';
 
-initializeApp();
+createApp(App).mount('#app');
