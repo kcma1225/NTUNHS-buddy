@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import Header from "./components/layout/Header.vue";
+import Header from "./components/header/Header.vue";
 import LoginPopup from "./components/auth/LoginPopup.vue";
 import NewsPopup from "./components/header/NewsPopup.vue";
 
