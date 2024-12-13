@@ -1,6 +1,18 @@
 <template>
-  <div id="app">
+  <div id="app" class="flex flex-col min-h-screen">
     <Header @open-login="showLoginPopup" @open-news="showNewsPopup" />
+
+    <!-- Main Content Frame -->
+    <main class="flex-grow pt-16 bg-gray-100">
+      <div class="container mx-auto p-6 bg-white shadow-lg rounded-lg">
+        <component :is="currentComponent" />
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <Footer />
+
+    <!-- Login 和 News 彈出視窗 -->
     <LoginPopup v-if="isLoginVisible" @close-login="hideLoginPopup" />
     <NewsPopup v-if="isNewsVisible" @close-news="hideNewsPopup" />
   </div>
@@ -8,34 +20,25 @@
 
 <script>
 import Header from "./components/header/Header.vue";
+import Footer from "./components/footer/footer.vue";
 import LoginPopup from "./components/auth/LoginPopup.vue";
 import NewsPopup from "./components/header/NewsPopup.vue";
+import ExampleComponent from "./components/ExampleComponent.vue";
 
 export default {
   components: {
     Header,
+    Footer,
     LoginPopup,
     NewsPopup,
+    ExampleComponent,
   },
   data() {
     return {
-      isLoginVisible: false, // 控制 LoginPopup 的顯示
-      isNewsVisible: false, // 控制 NewsPopup 的顯示
+      isLoginVisible: false,
+      isNewsVisible: false,
+      currentComponent: "ExampleComponent",
     };
-  },
-  methods: {
-    showLoginPopup() {
-      this.isLoginVisible = true; // 打開 LoginPopup
-    },
-    hideLoginPopup() {
-      this.isLoginVisible = false; // 關閉 LoginPopup
-    },
-    showNewsPopup() {
-      this.isNewsVisible = true; // 打開 NewsPopup
-    },
-    hideNewsPopup() {
-      this.isNewsVisible = false; // 關閉 NewsPopup
-    },
   },
 };
 </script>

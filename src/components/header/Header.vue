@@ -150,7 +150,7 @@
           <div class="mt-auto text-center text-gray-600">
             <a @click="$emit('open-news')" class="flex mb-2">最新消息</a>
             <a href="https://example.com" class="flex mb-2">幫助中心</a>
-            <div class="inline-flex text-xs text-gray-400">課程查詢系統 v1.0</div>
+            <div class="inline-flex text-xs text-gray-400">第五組<br>北護課程查詢系統 v1.0</div>
           </div>
         </ul>
       </div>
