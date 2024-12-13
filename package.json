@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@popperjs/core": "^2.11.8",
+    "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
     "vue": "^3.5.12",
     "vue-nav-ui": "^1.0.5",
@@ -16,6 +18,9 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.1.4",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.16",
     "vite": "^5.4.10"
   }
 }

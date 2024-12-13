@@ -1,39 +1,67 @@
 <template>
-  <div class="news-popup">
-    <div class="popup-content">
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" @click.self="$emit('close-news')">
+    <div class="bg-white w-4/5 max-w-4xl h-[600px] rounded-lg overflow-hidden shadow-lg flex flex-col">
       <!-- Header -->
-      <div class="popup-header" :class="{ 'has-selected-news': !!selectedNews }">
+      <div
+        :class="[
+          'flex items-center justify-between px-4 py-2 bg-green-900 text-white',
+          { 'justify-start': !!selectedNews }
+        ]"
+      >
         <!-- 返回列表按鈕 -->
-        <button v-if="selectedNews" @click="selectedNews = null" class="back-button">
-          <!-- 使用 Bootstrap 的 Chevron Left 圖標 -->
-          <i class="bi bi-chevron-left back-icon"></i>
+        <button
+          v-if="selectedNews"
+          @click="selectedNews = null"
+          class="text-white text-sm flex items-center cursor-pointer"
+        >
+          <i class="bi bi-arrow-return-left mr-1"></i>
           返回列表
         </button>
-        <!-- 標題 -->
-        <h2 class="popup-title">{{ selectedNews ? selectedNews.title : "最新消息" }}</h2>
-        <!-- 關閉按鈕 -->
-        <button @click="$emit('close-news')" class="close-button">✖</button>
+        <h2 class="text-lg font-bold ml-2">{{ selectedNews ? selectedNews.title : "最新消息" }}</h2>
+        <button
+          type="button"
+          aria-label="Close"
+          @click="$emit('close-news')"
+          class="text-white text-2xl font-bold cursor-pointer"
+        >
+          &times;
+        </button>
       </div>
       <!-- 列表模式 -->
-      <div v-if="!selectedNews" class="news-list">
-        <ul>
+      <div v-if="!selectedNews" class="flex-grow p-4 overflow-auto">
+        <ul class="list-none p-0">
           <li
-            v-for="news in newsList"
+            v-for="(news, index) in paginatedNews"
             :key="news.timestamp"
             @click="viewNews(news)"
-            class="news-item"
+            class="cursor-pointer hover:bg-gray-200 px-4 py-2 border-b border-gray-300 flex items-center"
           >
-            <a href="#" class="news-link">
-              <span class="news-title">{{ news.title }}</span>
-              <span class="news-date">{{ news.date }}</span>
+            <!-- 編號 -->
+            <span class="mr-4 font-bold">{{ (currentPage - 1) * itemsPerPage + index + 1 }}.</span>
+            <!-- 文章內容 -->
+            <a href="#" class="flex justify-between flex-grow items-center text-black no-underline">
+              <span class="font-bold">{{ news.title }}</span>
+              <span class="text-gray-500 text-xs">{{ news.date }}</span>
             </a>
           </li>
         </ul>
       </div>
       <!-- 詳細模式 -->
-      <div v-else class="news-detail">
-        <span class="news-date">{{ selectedNews.date }}</span>
-        <p class="news-content" v-html="selectedNews.content"></p>
+      <div v-else class="p-4 flex-grow overflow-auto">
+        <span class="block text-gray-500 text-xs mb-2">{{ selectedNews.date }}</span>
+        <p class="px-2 mt-2 leading-relaxed" v-html="selectedNews.content"></p>
+      </div>
+      <!-- 分頁控制 -->
+      <div class="p-4 flex justify-center">
+        <button
+          v-for="page in totalPages"
+          :key="page"
+          @click="currentPage = page"
+          class="mx-1 px-3 py-1 border rounded"
+          :class="{'bg-green-600 text-white': currentPage === page, 'bg-gray-100': currentPage !== page}"
+        >
+          {{ page }}
+        </button>
       </div>
     </div>
   </div>
@@ -44,30 +72,33 @@ export default {
   data() {
     return {
       newsList: [
-        {
-          timestamp: 1701686400000,
-          date: "2024/08/05",
-          title: "1131校際課程交換日期",
-          content:
-            "詳細資訊請參考以下連結：<a href='http://curri.aca.ntu.edu.tw/aca_doc/Alliance/allp.pdf'>點擊此處</a>",
-        },
-        {
-          timestamp: 1701648000000,
-          date: "2024/08/02",
-          title: "113學年第一學期課程公告日期",
-          content:
-            "第一學期課程公告將於此日公布，敬請關注教務處網站。",
-        },
-        {
-          timestamp: 1701648000001,
-          date: "2024/08/02",
-          title: "113學年度行事曆",
-          content:
-            "行事曆詳細資訊，請參閱校方公告：<a href='http://example.com/calendar'>點擊此處</a>",
-        },
+        { timestamp: 1701686400000, date: "2024/08/05", title: "1131校際課程交換日期", content: "詳細資訊請參考以下連結：<a href='http://curri.aca.ntu.edu.tw/aca_doc/Alliance/allp.pdf'>點擊此處</a>" },
+        { timestamp: 1701648000000, date: "2024/08/02", title: "113學年第一學期課程公告日期", content: "第一學期課程公告將於此日公布，敬請關注教務處網站。" },
+        { timestamp: 1701648000001, date: "2024/08/02", title: "113學年度行事曆", content: "行事曆詳細資訊，請參閱校方公告：<a href='http://example.com/calendar'>點擊此處</a>" },
+        ...Array.from({ length: 10 }, (_, i) => ({
+          timestamp: Date.now() + i,
+          date: `2024/08/${i + 3}`,
+          title: `測試消息標題 ${i + 1}`,
+          content: `這是測試消息內容 ${i + 1}，用於模擬更多新聞資料。`
+        }))
       ],
       selectedNews: null,
+      currentPage: 1,
+      itemsPerPage: 10,
     };
+  },
+  computed: {
+    totalPages() {
+      return Math.ceil(this.sortedNewsList.length / this.itemsPerPage);
+    },
+    paginatedNews() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      return this.sortedNewsList.slice(start, end);
+    },
+    sortedNewsList() {
+      return this.newsList.sort((a, b) => b.timestamp - a.timestamp);
+    }
   },
   methods: {
     viewNews(news) {
@@ -76,125 +107,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.news-popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.popup-content {
-  background-color: white;
-  width: 90%;
-  max-width: 600px;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-/* Header 樣式 */
-.popup-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 10px;
-  background-color: #003618;
-  color: white;
-  height: 50px;
-}
-
-.popup-header.has-selected-news {
-  justify-content: flex-start;
-}
-
-.popup-title {
-  font-size: 18px;
-  font-weight: bold;
-  margin-left: 10px;
-  color: white; /* 將標題文字顏色設為白色 */
-}
-
-/* 返回列表按鈕樣式 */
-.back-button {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 14px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-}
-
-.back-icon {
-  margin-right: 5px;
-}
-
-/* 關閉按鈕 */
-.close-button {
-  background: none;
-  border: none;
-  font-size: 20px;
-  color: white;
-  cursor: pointer;
-}
-
-.close-button:hover {
-  opacity: 0.8;
-}
-
-/* 列表樣式 */
-.news-list ul {
-  list-style: none;
-  padding: 0;
-}
-
-.news-item {
-  padding-left: 10px; /* 增加左側內邊距 */
-  padding-right: 10px;
-}
-
-.news-link {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px 0;
-  text-decoration: none;
-  border-bottom: 1px solid #ddd;
-  color: black;
-  cursor: pointer;
-}
-
-.news-link:hover {
-  background-color: #f0f0f0;
-}
-
-.news-title {
-  font-weight: bold;
-}
-
-.news-date {
-  padding-top: 10px;
-  padding-left: 10px;
-  color: gray;
-  font-size: 12px;
-}
-
-.news-detail .news-date {
-  display: block;
-  color: gray;
-  font-size: 12px;
-  margin-bottom: 10px;
-}
-
-.news-content {
-  padding-left: 10px;
-  margin-top: 10px;
-  line-height: 1.6;
-}
-</style>
