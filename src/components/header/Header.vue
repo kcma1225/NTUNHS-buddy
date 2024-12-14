@@ -20,7 +20,7 @@
       <img
         :src="logoSrc"
         alt="Logo"
-        class="h-12 md:h-10 lg:h-12 transition-all duration-300"
+        class="h-11 md:h-10 lg:h-12 transition-all duration-300"
       />
     </a>
 
@@ -85,7 +85,7 @@
       <!-- 最新消息 -->
       <a
         @click="$emit('open-news')"
-        class="text-white text-base cursor-pointer no-underline hover:text-opacity-80 transition duration-300"
+        class="text-white text-base cursor-pointer no-underline hover:underline underline-offset-4 decoration-solid decoration-2 decoration-slate-200 transition duration-300"
       >
         最新消息
       </a>
@@ -95,7 +95,7 @@
         href="https://example.com"
         target="_blank"
         rel="noopener noreferrer"
-        class="text-white text-base cursor-pointer no-underline hover:text-opacity-80 transition duration-300"
+        class="text-white text-base cursor-pointer no-underline hover:underline underline-offset-4 decoration-solid decoration-2 decoration-slate-200 transition duration-300"
       >
         幫助中心
       </a>
@@ -148,8 +148,8 @@
           </li>
           <!-- 底部資訊 -->
           <div class="mt-auto text-center text-gray-600">
-            <a @click="$emit('open-news')" class="flex mb-2">最新消息</a>
-            <a href="https://example.com" class="flex mb-2">幫助中心</a>
+            <a @click="$emit('open-news')" class="flex mb-2 no-underline">最新消息</a>
+            <a href="https://example.com" class="flex mb-2 no-underline">幫助中心</a>
             <div class="inline-flex text-xs text-gray-400">第五組<br>北護課程查詢系統 v1.0</div>
           </div>
         </ul>
