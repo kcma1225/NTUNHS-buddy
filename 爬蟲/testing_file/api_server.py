@@ -148,3 +148,7 @@ async def search_data(request: SearchRequest):
         return {"results": results, "count": len(results)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"查詢失敗: {str(e)}")
+
+
+
+

@@ -3,6 +3,8 @@ import requests
 # API 基本 URL
 BASE_URL = "http://127.0.0.1:8000"
 
+
+
 def get_education_types():
     try:
         response = requests.get(f"{BASE_URL}/education-types")
