@@ -1,12 +1,63 @@
 import os
 import json
 from pymongo import MongoClient
+from bcrypt import hashpw, gensalt, checkpw
+
+
+
+# 加密密碼
+def hash_password(plain_password):
+    return hashpw(plain_password.encode(), gensalt()).decode()
 
 # 連接 MongoDB
 def connect_to_mongodb():
     client = MongoClient("mongodb://localhost:27017/")
     print("成功連接到 MongoDB")
     return client
+
+# 創建管理帳號資料庫
+def create_account_database():
+    client = connect_to_mongodb()
+    db_name = "account_database"
+    db = client[db_name]
+
+    # 預設管理帳號與密碼
+    admin_username = "admin"
+    admin_password = "a22512188"
+    admin_position = 1  # 職位代碼：1 代表管理員
+    hashed_password = hash_password(admin_password)
+
+    # 插入管理者帳號
+    if admin_username not in db.list_collection_names():
+        db[admin_username].insert_one({
+            "password": hashed_password,
+            "position": admin_position  # 新增職位欄位
+        })
+        print(f"已創建管理者帳號: {admin_username}，並加密密碼和設置職位")
+    else:
+        print(f"管理者帳號 {admin_username} 已存在")
+
+    return db_name, hashed_password
+
+# 創建選課系統資料庫
+def create_course_favorites_database():
+    client = connect_to_mongodb()
+    db_name = "course_favorites_database"
+    db = client[db_name]
+
+    # 確保資料庫創建至少有一個初始 Collection
+    init_collection_name = "init_collection"
+    if init_collection_name not in db.list_collection_names():
+        db[init_collection_name].insert_one({"message": "Initialization document"})
+        print(f"已創建初始 Collection '{init_collection_name}'")
+
+    print(f"選課系統資料庫 {db_name} 已創建（包含初始 Collection）")
+    return db_name
+
+
+
+
+
 
 # 檢查 Collection 是否已存在
 def is_collection_existing(db, collection_name):
@@ -71,5 +122,16 @@ if __name__ == "__main__":
         print(f"資料夾 '{output_data_dir}' 不存在，請檢查路徑！")
         exit()
 
+    account_db_name, hashed_admin_password = create_account_database()
+    course_db_name = create_course_favorites_database()
+
+
+
     # 執行數據導入程序
     import_json_to_mongodb(output_data_dir, database_name)
+
+
+
+
+
+
