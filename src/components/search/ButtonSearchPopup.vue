@@ -201,7 +201,7 @@ export default {
         { label: "四", value: "4" },
         { label: "五", value: "5" },
         { label: "六", value: "6" },
-        { label: "七", value: "7" },
+        { label: "日", value: "7" },
       ],
       rows: Array.from({ length: 14 }, (_, i) => i + 1),
       selectedSemesters: [],

@@ -89,7 +89,7 @@ export default {
     SystemSelectPopup,
     DepartmentSelectPopup,
     MobileSearchPopup,
-    ButtonSearchPopup, // 註冊 ButtonSearchPopup
+    ButtonSearchPopup,
   },
   data() {
     return {
