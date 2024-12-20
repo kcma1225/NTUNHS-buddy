@@ -1,36 +1,78 @@
 <template>
   <div id="app" class="flex flex-col min-h-screen">
-    <!-- Header -->
     <Header @open-login="showLoginPopup" @open-news="showNewsPopup" />
-
-    <!-- Main Frame -->
+    
     <main class="flex-grow pt-16 bg-gray-100">
-      <div class="container mx-auto p-6 bg-white shadow-lg rounded-lg">
-        <!-- 動態內容區域 -->
-        <component :is="currentComponent" />
+      <div class="p-4 w-full">
+        <div class="mb-3.5 mt-2 flex items-center justify-center gap-2 w-full">
+          <div class="max-w-2xl w-full">
+            <!-- Searching Box -->
+            <CourseSearchBox
+              @open-system-select="openSystemPopup"
+              @open-dept-select="openDeptPopup"
+              @require-system="handleRequireSystem"
+              @search="handleSearch"
+              :selectedSystems="selectedSystems"
+              :selectedDepts="selectedDepts"
+              :keyword="keyword"
+              @update:keyword="keyword = $event"
+              @update:selectedSystems="selectedSystems = $event"
+              @update:selectedDepts="selectedDepts = $event"
+              @open-mobile-search="showPopup = true"
+              ref="courseSearchBox"
+            />
+            <!-- 手機版 Popup -->
+            <MobileSearchPopup
+              v-if="showPopup"
+              :keyword="keyword"
+              @update:keyword="updateKeyword"
+              @close="showPopup = false"
+            />
+          </div>
+        </div>
       </div>
     </main>
 
-    <!-- Footer -->
     <Footer />
 
-    <!-- Login 和 News 彈出視窗 -->
+    <!-- Login 和 News Popup -->
     <LoginPopup v-if="isLoginVisible" @close-login="hideLoginPopup" />
     <NewsPopup v-if="isNewsVisible" @close-news="hideNewsPopup" />
+
+    <!-- 學制選擇 Popup -->
+    <SystemSelectPopup
+      v-if="showSystemPopup"
+      class="absolute z-50"
+      :selectedItems="selectedSystems"
+      :style="systemPopupStyle"
+      @confirm="handleSystemSelected"
+      @clear-all="handleSystemClearAll"
+      @close="showSystemPopup = false"
+    />
+
+    <!-- 系所選擇 Popup -->
+    <DepartmentSelectPopup
+      v-if="showDeptPopup"
+      class="absolute z-50"
+      :systemList="selectedSystems"
+      :selectedItems="selectedDepts"
+      :style="deptPopupStyle"
+      @confirm="handleDeptSelected"
+      @clear-all="handleDeptClearAll"
+      @close="showDeptPopup = false"
+    />
   </div>
 </template>
 
 <script>
-/* View */
 import Header from "./components/header/Header.vue";
-import Footer from "./components/footer/footer.vue";
-
-/* Popup Frame */
+import Footer from "./components/footer/Footer.vue";
 import LoginPopup from "./components/auth/LoginPopup.vue";
 import NewsPopup from "./components/header/NewsPopup.vue";
-
-/* Main Frame*/
-import ExampleComponent from "./components/ExampleComponent.vue";
+import CourseSearchBox from "./components/search/CourseSearchBox.vue";
+import SystemSelectPopup from "./components/search/SystemSelectPopup.vue";
+import DepartmentSelectPopup from "./components/search/DepartmentSelectPopup.vue";
+import MobileSearchPopup from "./components/search/MobileSearchPopup.vue";
 
 export default {
   components: {
@@ -38,13 +80,31 @@ export default {
     Footer,
     LoginPopup,
     NewsPopup,
-    ExampleComponent, // 預設載入一個範例組件
+    CourseSearchBox,
+    SystemSelectPopup,
+    DepartmentSelectPopup,
+    MobileSearchPopup
   },
   data() {
     return {
       isLoginVisible: false,
       isNewsVisible: false,
-      currentComponent: "ExampleComponent", // 預設組件
+      showSystemPopup: false,
+      showDeptPopup: false,
+      showPopup: false, // 控制 MobileSearchPopup
+      keyword: "",
+      selectedSystems: [],
+      selectedDepts: [],
+      systemPopupStyle: {
+        position: 'absolute',
+        top: '0px',
+        left: '0px'
+      },
+      deptPopupStyle: {
+        position: 'absolute',
+        top: '0px',
+        left: '0px'
+      }
     };
   },
   methods: {
@@ -60,16 +120,64 @@ export default {
     hideNewsPopup() {
       this.isNewsVisible = false;
     },
-    loadComponent(componentName) {
-      this.currentComponent = componentName; // 切換不同組件
+    handleRequireSystem() {
+      this.openSystemPopup();
     },
+    handleSystemSelected(selectedArray) {
+      this.selectedSystems = selectedArray;
+    },
+    handleDeptSelected(selectedArray) {
+      this.selectedDepts = selectedArray;
+    },
+    handleSearch({ keyword, systems, depts }) {
+      console.log("搜尋條件", { keyword, systems, depts });
+    },
+    openSystemPopup() {
+      this.showDeptPopup = false;
+      this.$nextTick(() => {
+        const el = this.$refs.courseSearchBox.$refs.systemField;
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          this.systemPopupStyle = {
+            position: 'absolute',
+            top: rect.bottom + window.scrollY + 'px',
+            left: rect.left + 'px',
+            zIndex: 9999
+          };
+        }
+      });
+      this.showSystemPopup = true;
+    },
+    openDeptPopup() {
+      this.showSystemPopup = false;
+      if (this.selectedSystems.length === 0) {
+        this.showSystemPopup = true;
+        return;
+      }
+      this.$nextTick(() => {
+        const el = this.$refs.courseSearchBox.$refs.deptField;
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          this.deptPopupStyle = {
+            position: 'absolute',
+            top: rect.bottom + window.scrollY + 'px',
+            left: rect.left + 'px',
+            zIndex: 9999
+          };
+        }
+      });
+      this.showDeptPopup = true;
+    },
+    updateKeyword(newKeyword) {
+      this.keyword = newKeyword;
+    },
+    handleSystemClearAll() {
+      this.selectedSystems = [];
+      this.selectedDepts = [];
+    },
+    handleDeptClearAll() {
+      this.selectedDepts = [];
+    }
   },
 };
 </script>
-
-<style>
-/* 固定 Header 高度，避免被遮擋 */
-.pt-16 {
-  padding-top: 4rem; /* Header 高度，16 x 0.25rem = 4rem */
-}
-</style>

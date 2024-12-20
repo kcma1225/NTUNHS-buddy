@@ -1,0 +1,4 @@
+# Haha, I do not let Web Crawler Bot access my WEB
+
+User-agent: *
+Disallow: /
