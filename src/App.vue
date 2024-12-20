@@ -19,6 +19,7 @@
               @update:selectedSystems="selectedSystems = $event"
               @update:selectedDepts="selectedDepts = $event"
               @open-mobile-search="showPopup = true"
+              @open-popup="showButtonSearchPopup"
               ref="courseSearchBox"
             />
             <!-- 手機版 Popup -->
@@ -61,6 +62,9 @@
       @clear-all="handleDeptClearAll"
       @close="showDeptPopup = false"
     />
+
+    <!-- 新增 ButtonSearchPopup -->
+    <ButtonSearchPopup v-if="isButtonSearchPopupVisible" @close="isButtonSearchPopupVisible = false" />
   </div>
 </template>
 
@@ -73,6 +77,7 @@ import CourseSearchBox from "./components/search/CourseSearchBox.vue";
 import SystemSelectPopup from "./components/search/SystemSelectPopup.vue";
 import DepartmentSelectPopup from "./components/search/DepartmentSelectPopup.vue";
 import MobileSearchPopup from "./components/search/MobileSearchPopup.vue";
+import ButtonSearchPopup from "./components/search/ButtonSearchPopup.vue"; // 引入 ButtonSearchPopup
 
 export default {
   components: {
@@ -83,7 +88,8 @@ export default {
     CourseSearchBox,
     SystemSelectPopup,
     DepartmentSelectPopup,
-    MobileSearchPopup
+    MobileSearchPopup,
+    ButtonSearchPopup, // 註冊 ButtonSearchPopup
   },
   data() {
     return {
@@ -92,6 +98,7 @@ export default {
       showSystemPopup: false,
       showDeptPopup: false,
       showPopup: false, // 控制 MobileSearchPopup
+      isButtonSearchPopupVisible: false, // 新增的 Popup 控制變數
       keyword: "",
       selectedSystems: [],
       selectedDepts: [],
@@ -167,6 +174,9 @@ export default {
         }
       });
       this.showDeptPopup = true;
+    },
+    showButtonSearchPopup() {
+      this.isButtonSearchPopupVisible = true; // 開啟 ButtonSearchPopup
     },
     updateKeyword(newKeyword) {
       this.keyword = newKeyword;
