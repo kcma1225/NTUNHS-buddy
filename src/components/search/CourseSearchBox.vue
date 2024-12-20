@@ -159,6 +159,11 @@ export default {
     openSystemSelect() {
       this.$emit("open-system-select");
     },
+    
+    openPopup(option) {
+      console.log("按下的按鈕：", option);
+      this.isPopupVisible = true;
+    },
 
     displaySelected(items, placeholder) {
       if (items.length === 0) {
