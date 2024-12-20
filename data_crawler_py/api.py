@@ -61,8 +61,11 @@ class LoginRequest(BaseModel):
 
 class CourseUpdateRequest(BaseModel):
     _id: str
-    update_data: dict
+    update_data: Dict[str, str]
 
+class StudentDetailsRequest(BaseModel):
+    account: str
+    
 # 密碼加密
 def hash_password(plain_password):
     return hashpw(plain_password.encode(), gensalt()).decode()
@@ -131,7 +134,29 @@ async def login_user(login_request: LoginRequest):
 
 
 
+@app.post("/get-student-details")
+async def get_student_details(request: Request, details_request: StudentDetailsRequest):
+    """
+    查詢指定學號的學生詳細資料。
+    僅限管理員使用。
+    """
+    # 驗證角色為 admin
+    verify_role(request, "admin")
 
+    account = details_request.account
+
+    # 檢查帳號是否存在於資料庫
+    if account not in db_account.list_collection_names():
+        raise HTTPException(status_code=404, detail="帳號不存在")
+
+    # 查詢該帳號的詳細資料
+    student_collection = db_account[account]
+    student_data = student_collection.find_one({}, {"_id": 0})  # 排除 _id 欄位
+
+    if not student_data:
+        raise HTTPException(status_code=404, detail="該帳號沒有相關資料")
+
+    return {"status": "success", "student_details": student_data}
 
 #這個很重要不能刪到
 @app.post("/upload-students")
@@ -269,47 +294,55 @@ async def get_course_by_id(request: Request, _id: str):
 
 
 
-
+# Step 3
 @app.post("/update-course")
-async def update_course(request: Request, course_request: CourseUpdateRequest):
-    verify_role(request, "admin")  # 確保是管理員
+async def update_course(request: Request, course_request: Dict[str, dict]):
+    """
+    更新課程資料，限制不能修改 '學制'、'系所' 和 '教師姓名'。
+    """
+    verify_role(request, "admin")  # 確保使用者是管理員
 
-    # Step 1: 提取 _id 和更新內容
-    _id = course_request._id
-    update_data = course_request.update_data
+    _id = course_request.get("_id")
+    update_data = course_request.get("update_data")
+
+    if not _id or not update_data:
+        print("Missing _id or update_data")
+        raise HTTPException(status_code=400, detail="缺少必要的 _id 或更新資料")
 
     try:
-        object_id = ObjectId(_id)  # 確保 _id 被正確轉換為 ObjectId
-    except Exception:
+        object_id = ObjectId(_id)
+        print(f"ObjectId conversion successful: {object_id}")
+    except Exception as e:
+        print(f"ObjectId conversion failed: {e}")
         raise HTTPException(status_code=400, detail="提供的 _id 無效")
 
-    # Step 2: 禁止更新 "學制" 和 "系所"
-    restricted_fields = {"學制", "系所"}
+    restricted_fields = {"學制", "系所", "教師姓名"}
     for field in restricted_fields:
         if field in update_data:
+            print(f"Restricted field found: {field}")
             raise HTTPException(
-                status_code=400, detail=f"欄位 '{field}' 不允許被更新"
+                status_code=400,
+                detail=f"Field '{field}' cannot be updated"
             )
 
-    # Step 3: 遍歷資料庫的 Collection 並更新對應課程
     for collection_name in db.list_collection_names():
+        print(f"Checking collection: {collection_name}")
         collection = db[collection_name]
         existing_course = collection.find_one({"_id": object_id})
-
         if existing_course:
-            # 執行更新操作，只更新 JSON 中提供的欄位
+            print(f"Existing course found: {existing_course}")
             result = collection.update_one({"_id": object_id}, {"$set": update_data})
-
+            print(f"Update query: {{'_id': {object_id}}}")
+            print(f"Update data: {update_data}")
+            print(f"Update result: {result.modified_count}")
             if result.modified_count > 0:
                 return {"status": "success", "message": "課程更新成功"}
-
             raise HTTPException(
-                status_code=304, detail="課程資料未變更"
+                status_code=304, detail="No changes were made to the course"
             )
 
-    # 如果未找到對應的課程
+    print("Course not found")
     raise HTTPException(status_code=404, detail="課程未找到")
-
 
 
 
@@ -335,7 +368,7 @@ async def delete_course(request: Request, course_request: Dict[str, str]):
     # 如果未找到對應的 _id
     raise HTTPException(status_code=404, detail="課程未找到或刪除失敗")
 
-
+#=================================================================
 #學生:
 
 # 新增我的最愛

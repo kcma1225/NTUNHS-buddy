@@ -57,8 +57,6 @@ def create_course_favorites_database():
 
 
 
-
-
 # 檢查 Collection 是否已存在
 def is_collection_existing(db, collection_name):
     return collection_name in db.list_collection_names()
