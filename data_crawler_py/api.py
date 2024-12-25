@@ -142,9 +142,17 @@ async def login_user(login_request: LoginRequest):
     # 生成 Token
     token = create_token({"sub": username, "role": role})
 
+    # 回傳 Token 和角色
+    return {
+        "message": "登入成功",
+        "role": role,
+        "username": username,
+        "name": name,
+        "token": token  # 將 Token 包含在返回結果中
+    }
 
 
-    
+   
     # 設定 Cookie 並回傳
     response = JSONResponse(
         content={
@@ -165,14 +173,6 @@ async def login_user(login_request: LoginRequest):
     return response
 
 
-        # 回傳 Token 和角色
-    return {
-        "message": "登入成功",
-        "role": role,
-        "username": username,
-        "name": name,
-        "token": token  # 將 Token 包含在返回結果中
-    }
 
 
     # 設定 Cookie 並回傳
@@ -189,7 +189,7 @@ async def get_student_details(request: Request, details_request: StudentDetailsR
     僅限管理員使用。
     """
     # 驗證角色為 admin
-    verify_role(request, "admin")
+    #verify_role(request, "admin")
 
     account = details_request.account
 
@@ -215,7 +215,7 @@ async def upload_students(file: UploadFile, request: Request):
     從上傳的 JSON 檔案匯入學生資料
     """
 
-    verify_role(request, "admin") 
+    #verify_role(request, "admin") 
 
     try:
         # 讀取 JSON 檔案
@@ -268,7 +268,7 @@ async def import_courses(file: UploadFile, request: Request):
     管理員權限專屬：匯入課程資料並按學制和系所分類存入 MongoDB。
     """
     # 驗證管理員權限
-    verify_role(request, "admin")
+    #verify_role(request, "admin")
 
     try:
         # 讀取 JSON 文件內容
@@ -319,7 +319,7 @@ async def import_courses(file: UploadFile, request: Request):
 # Step 1: 根據 _id 取得課程
 @app.post("/edit-course")
 async def edit_course(request: Request, _id: str):
-    verify_role(request, "admin")  # 確保是管理員
+    #verify_role(request, "admin")  # 確保是管理員
     for collection_name in db.list_collection_names():
         collection = db[collection_name]
         document = collection.find_one({"_id": ObjectId(_id)})
@@ -333,7 +333,7 @@ async def edit_course(request: Request, _id: str):
 # Step 2: 根據 _id 取得課程詳細內容
 @app.get("/get-course-by-id")
 async def get_course_by_id(request: Request, _id: str):
-    verify_role(request, "admin")  # 確保是管理員
+    #verify_role(request, "admin")  # 確保是管理員
     for collection_name in db.list_collection_names():
         collection = db[collection_name]
         document = collection.find_one({"_id": ObjectId(_id)})
@@ -350,7 +350,7 @@ async def update_course(request: Request, course_request: Dict[str, dict]):
     """
     更新課程資料，限制不能修改 '學制'、'系所' 和 '教師姓名'。
     """
-    verify_role(request, "admin")  # 確保使用者是管理員
+    #verify_role(request, "admin")  # 確保使用者是管理員
 
     _id = course_request.get("_id")
     update_data = course_request.get("update_data")
@@ -399,7 +399,7 @@ async def update_course(request: Request, course_request: Dict[str, dict]):
 # Step 4: 根據 _id 刪除課程
 @app.post("/delete-course")
 async def delete_course(request: Request, course_request: Dict[str, str]):
-    verify_role(request, "admin")  # 確保是管理員
+    #verify_role(request, "admin")  # 確保是管理員
     _id = course_request.get("_id")  # 從請求中提取 _id
 
     # 確保 _id 被正確轉換為 ObjectId
@@ -428,7 +428,7 @@ async def add_to_favorites(request: Request, course_id: str):
     新增課程到學生的收藏，僅允許學生操作。
     """
     # 驗證角色為學生
-    verify_role(request, "student")
+    #verify_role(request, "student")
     
     # 從 Token 取得學生帳號
     token = request.cookies.get("auth_token")
@@ -455,7 +455,7 @@ async def get_favorites_details(request: Request):
     獲取學生收藏的課程詳細資料。
     """
     # 驗證角色為學生
-    verify_role(request, "student")
+    #verify_role(request, "student")
 
     # 從 Token 取得學生帳號
     token = request.cookies.get("auth_token")
@@ -508,7 +508,7 @@ async def get_favorites_details(request: Request):
 
 @app.post("/remove-from-favorites")
 async def remove_from_favorites(request: Request, favorite_request: Dict[str, str]):
-    verify_role(request, "student")  # 確保使用者是學生
+    #verify_role(request, "student")  # 確保使用者是學生
 
     # 從 Token 中提取學生帳號
     token = request.cookies.get("auth_token")
