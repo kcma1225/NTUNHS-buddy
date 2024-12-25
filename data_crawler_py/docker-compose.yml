@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  mongo:
+    image: mongo:5.0
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app-network
+
+  mongo-init:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mongo-init
+    depends_on:
+      - mongo
+    entrypoint: ["python", "mongodb_build.py"]
+    networks:
+      - app-network
+    restart: "on-failure"
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: api-server
+    depends_on:
+      - mongo-init
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      - MONGO_URI=mongodb://mongo:27017/mydatabase
+    networks:
+      - app-network
+
+volumes:
+  mongo_data:
+
+networks:
+  app-network:
