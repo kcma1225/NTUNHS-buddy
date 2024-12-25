@@ -143,7 +143,29 @@ async def login_user(login_request: LoginRequest):
     token = create_token({"sub": username, "role": role})
 
 
-    # 回傳 Token 和角色
+
+    
+    # 設定 Cookie 並回傳
+    response = JSONResponse(
+        content={
+            "message": "登入成功",
+            "role": role,
+            "username": username,
+            "name": name,
+            "token": token  # 將 Token 包含在返回結果中
+        }
+    )
+    response.set_cookie(
+        key="auth_token",
+        value=token,
+        httponly=True,
+        samesite='none',
+        secure=False,
+    )
+    return response
+
+
+        # 回傳 Token 和角色
     return {
         "message": "登入成功",
         "role": role,
