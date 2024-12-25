@@ -21,7 +21,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 10
 # MongoDB 連接設置
 def connect_to_mongodb():
     try:
-        client = MongoClient("mongodb://localhost:27017/")
+        client = MongoClient("mongodb://mongo:27017/")
         print("成功連接到 MongoDB")
         return client
     except Exception as e:

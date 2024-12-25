@@ -11,7 +11,7 @@ def hash_password(plain_password):
 
 # 連接 MongoDB
 def connect_to_mongodb():
-    client = MongoClient("mongodb://localhost:27017/")
+    client = MongoClient("mongodb://mongo:27017/")
     print("成功連接到 MongoDB")
     return client
 
