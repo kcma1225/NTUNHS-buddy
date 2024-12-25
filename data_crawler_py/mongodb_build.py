@@ -23,7 +23,7 @@ def create_account_database():
 
     # 預設管理帳號與密碼
     admin_username = "admin"
-    admin_password = "a22512188"
+    admin_password = "0000" #a22512188
     admin_position = 1  # 職位代碼：1 代表管理員
     hashed_password = hash_password(admin_password)
 
@@ -53,6 +53,8 @@ def create_course_favorites_database():
 
     print(f"選課系統資料庫 {db_name} 已創建（包含初始 Collection）")
     return db_name
+
+
 
 
 
