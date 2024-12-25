@@ -135,6 +135,10 @@ async def login_user(login_request: LoginRequest):
     position = user_data.get("position", 2)  # 預設為學生
     role = "admin" if position == 1 else "student"
 
+    # 獲取姓名
+    name = user_data.get("name", "")  # 若無姓名則返回空字串
+
+
     # 生成 Token
     token = create_token({"sub": username, "role": role})
 
@@ -143,8 +147,12 @@ async def login_user(login_request: LoginRequest):
     return {
         "message": "登入成功",
         "role": role,
+        "username": username,
+        "name": name,
         "token": token  # 將 Token 包含在返回結果中
     }
+
+
     # 設定 Cookie 並回傳
     response = JSONResponse(content={"message": "登入成功", "role": role, })
     response.set_cookie(key="auth_token", value=token, httponly=True, samesite='none', secure=False,)
