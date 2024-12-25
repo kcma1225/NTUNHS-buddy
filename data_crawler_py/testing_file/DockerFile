@@ -1,0 +1,14 @@
+# 使用官方 Python 基礎映像
+FROM python:3.9-slim
+
+# 設定工作目錄
+WORKDIR /app
+
+# 複製所有本地文件到容器內
+COPY . /app
+
+# 安裝所需的 Python 依賴
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 預設命令為空，讓 docker-compose 指定 entrypoint
+CMD ["python", "api.py"]
