@@ -397,6 +397,7 @@ async def update_course(request: Request, course_request: Dict[str, dict]):
 
 
 
+
 @app.post("/delete-course")
 async def delete_course(course_id: str):
     #verify_role(request, "admin")  # 確保是管理員
