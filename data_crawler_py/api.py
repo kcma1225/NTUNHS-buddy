@@ -21,8 +21,8 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 10
 # MongoDB 連接設置
 def connect_to_mongodb():
     try:
-        client = MongoClient("mongodb://mongo:27017/")
-        #client = MongoClient("mongodb://localhost:27017/") 
+        #client = MongoClient("mongodb://mongo:27017/")
+        client = MongoClient("mongodb://localhost:27017/") 
         print("成功連接到 MongoDB")
         return client
     except Exception as e:
@@ -421,6 +421,47 @@ async def delete_course(request: Request, course_request: Dict[str, str]):
 
 #=================================================================
 #學生:
+
+class ChangePasswordRequest(BaseModel):
+    account: str
+    old_password: str
+    new_password: str
+
+
+#改密碼:
+@app.post("/change-password")
+async def change_password(request: ChangePasswordRequest):
+    """
+    更改學生的密碼。
+    """
+    account = request.account
+    old_password = request.old_password
+    new_password = request.new_password
+
+    # 檢查學號是否存在
+    if account not in db_account.list_collection_names():
+        raise HTTPException(status_code=404, detail="帳號不存在")
+
+    # 獲取用戶資料
+    user_data = db_account[account].find_one()
+    if not user_data or "password" not in user_data:
+        raise HTTPException(status_code=400, detail="帳號資料有誤")
+
+    # 驗證舊密碼
+    hashed_password = user_data["password"]
+    if not verify_password(old_password, hashed_password):
+        raise HTTPException(status_code=403, detail="舊密碼不正確")
+
+    # 更新為新密碼
+    hashed_new_password = hash_password(new_password)
+    db_account[account].update_one(
+        {},
+        {"$set": {"password": hashed_new_password}}
+    )
+
+    return {"status": "success", "message": "密碼已成功更改"}
+
+
 
 
 @app.post("/add-to-favorites")
