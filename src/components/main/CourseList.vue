@@ -58,15 +58,29 @@
 
         <!-- Right Section -->
         <div class="flex items-center justify-center md:w-1/6 space-x-2">
+          <!-- 若 role !== 'admin'，顯示「加入排課」與「加入收藏」 -->
+          <template v-if="cookiesData.role !== 'admin'">
+            <button
+              @click.stop="addToSchedule(course)"
+              class="px-4 py-2 text-sm text-white bg-green-600 rounded-full hover:bg-green-700"
+            >
+              加入排課
+            </button>
+            <button
+              @click.stop="addToFavorites(course)"
+              class="px-4 py-2 text-sm text-white bg-blue-600 rounded-full hover:bg-blue-700"
+            >
+              加入收藏
+            </button>
+          </template>
+
+          <!-- 若 role === 'admin'，顯示「刪除課程」 -->
           <button
-            class="px-4 py-2 text-sm text-white bg-green-600 rounded-full hover:bg-green-700"
+            v-else
+            @click.stop="deleteCourse(course)"
+            class="px-4 py-2 text-sm text-white bg-red-600 rounded-full hover:bg-red-700"
           >
-            加入排課
-          </button>
-          <button
-            class="px-4 py-2 text-sm text-white bg-blue-600 rounded-full hover:bg-blue-700"
-          >
-            加入收藏
+            刪除課程
           </button>
         </div>
       </li>
@@ -88,9 +102,11 @@
 </template>
 
 <script>
+import Cookies from "js-cookie";
 import axios from "axios";
 import config from "../../api/config.js";
 import CourseDetails from "./CourseDetails.vue";
+import apiService from "../../api/apiService.js";
 
 const apiClient = axios.create({
   baseURL: config.api.baseURL(),
@@ -112,6 +128,7 @@ export default {
       showBackToTop: false,
       showDetails: false,
       selectedCourse: null,
+      cookiesData: this.getCookiesData(),
     };
   },
   watch: {
@@ -168,6 +185,46 @@ export default {
     },
     handleScroll() {
       this.showBackToTop = window.scrollY > 200;
+    },
+    addToSchedule(course) {
+      // 在其他組件中呼叫
+      this.$refs.mockCourse.addToSchedule(courseData);
+    },
+    addToFavorites(course) {
+      apiService.updateFavorite(this.cookiesData.username, course._id)
+        .then(() => {
+          alert(`成功加入課程: ${course.課程名稱}`);
+        })
+        .catch((error) => {
+          const errorMessage = error.response?.data?.detail || "加入失敗";
+          alert(errorMessage);
+        });
+    },
+    // 新增刪除課程方法 (包含二次確認與刪除後重整頁面)
+    deleteCourse(course) {
+      const isConfirmed = confirm(
+        `確定要刪除「${course.課程名稱}」嗎？\n此動作無法恢復，請謹慎操作。`
+      );
+      if (!isConfirmed) return;
+
+      apiService.deleteCourse(course._id)
+        .then(() => {
+          alert(`成功刪除課程: ${course.課程名稱}`);
+          // 刪除成功後重整頁面
+          location.reload();
+        })
+        .catch((error) => {
+          const errorMessage = error.response?.data?.detail || "刪除失敗";
+          alert(errorMessage);
+        });
+    },
+    getCookiesData() {
+      return {
+        name: Cookies.get("name"),
+        username: Cookies.get("username"),
+        role: Cookies.get("role"),
+        token: Cookies.get("auth_token"),
+      };
     },
   },
   mounted() {

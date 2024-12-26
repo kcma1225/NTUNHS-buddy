@@ -132,7 +132,7 @@
           </div>
           <div v-else-if="cookiesData.role === 'student'">
             <!-- <a
-              href="/profile"
+              href="/student"
               class="block p-2 text-black no-underline hover:bg-gray-100 rounded"
             >
               個人資料設定
@@ -141,7 +141,7 @@
               href="/student"
               class="block p-2 text-black no-underline hover:bg-gray-100 rounded"
             >
-              收藏課程
+              學生專區
             </a>
             <!-- <a
               href="/schedule"

@@ -15,6 +15,7 @@
   <script>
   import StudentHeader from "../components/student/StudentHeader.vue";
   import StudentFooter from "../components/student/StudentFooter.vue";
+  import Settings from "../components/student/Settings.vue";
   import FavoriteCourse from "../components/student/FavoriteCourse.vue";
   import MockCourse from "../components/student/MockCourse.vue";
   
@@ -22,12 +23,13 @@
     components: {
       StudentHeader,
       StudentFooter,
+      Settings,
       FavoriteCourse,
       MockCourse
     },
     data() {
       return {
-        currentComponent: "FavoriteCourse", // 
+        currentComponent: "MockCourse", // 
       };
     },
     methods: {
@@ -40,6 +42,8 @@
           this.currentComponent = "FavoriteCourse";
         } else if (componentName === "mock-course") {
           this.currentComponent = "MockCourse";
+        }else if (componentName === "settings") {
+          this.currentComponent = "Settings";
         }
       },
     },

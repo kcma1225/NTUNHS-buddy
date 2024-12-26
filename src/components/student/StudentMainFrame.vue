@@ -10,13 +10,15 @@
   
   <script>
   import StudentHeader from "./StudentHeader.vue";
+  import Settings from "./Settings.vue";
   import FavoriteCourse from "./FavoriteCourse.vue";
   import MockCourse from "./MockCourse.vue";
-
+  
   export default {
     name: "AdminMainFrame",
     components: {
       StudentHeader,
+      Settings,
       FavoriteCourse,
       MockCourse,
     },

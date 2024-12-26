@@ -8,6 +8,7 @@
   
       <!-- Navigation Links -->
       <nav class="hidden md:flex space-x-4">
+        <a @click="switchComponent('settings')" class="hover:text-gray-300 cursor-pointer">個人資料設定</a>
         <a @click="switchComponent('favorite-course')" class="hover:text-gray-300 cursor-pointer">收藏課程</a>
         <a @click="switchComponent('mock-course')" class="hover:text-gray-300 cursor-pointer">模擬排課</a>
       </nav>
@@ -18,6 +19,7 @@
       <!-- Mobile Menu -->
       <div v-if="mobileMenuOpen" class="absolute top-12 left-0 w-full bg-green-800 text-white shadow-lg md:hidden">
         <ul class="space-y-2 py-4 px-6">
+          <li><a @click="switchComponent('settings')" class="block hover:text-gray-300 cursor-pointer">個人資料設定</a></li>
           <li><a @click="switchComponent('favorite-course')" class="block hover:text-gray-300 cursor-pointer">收藏課程</a></li>
           <li><a @click="switchComponent('mock-course')" class="block hover:text-gray-300 cursor-pointer">模擬排課</a></li>
         </ul>
