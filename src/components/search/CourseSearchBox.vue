@@ -96,11 +96,7 @@
 
   <!-- 彈出式視窗 -->
   <ButtonSearchPopup v-if="isPopupVisible" @close="isPopupVisible = false" />
-
-
 </template>
-
-
 
 <script>
 import ButtonSearchPopup from "./ButtonSearchPopup.vue";
@@ -138,33 +134,96 @@ export default {
     },
     submitSearch() {
       this.updateUrlParams();
-      this.$emit("search", {
-        keyword: this.localKeyword.trim() || null,
-        systems: this.selectedSystems,
-        depts: this.selectedDepts,
-      });
+      const bundle = this.collectParams();
+      this.$emit("search", bundle);
+    },
+    collectParams() {
+      const params = new URLSearchParams(window.location.search);
+      const bundle = {
+        education_types: this.mapEducationTypes(params.get("sys")),
+        departments: params.get("dept"),
+        semesters: params.get("s"),
+        grades: params.get("grade"),
+        course_categories: this.mapCourseCategories(params.get("category")),
+        course_contents: params.get("content"),
+        weekdays: [],
+        periods: [],
+        keyword: params.get("keyword"),
+      };
+
+      // Process 't' parameter into weekdays and periods
+      const t = params.get("t");
+      if (t) {
+        const timeValues = t.split(",");
+        for (const value of timeValues) {
+          const weekday = value[0];
+          const period = value.slice(1);
+          bundle.weekdays.push(weekday);
+          bundle.periods.push(period);
+        }
+      }
+
+      return bundle;
+    },
+    mapEducationTypes(sysString) {
+      if (!sysString) return null;
+      const mapping = {
+        "二技": "1",
+        "二技(三年)": "2",
+        "四技": "3",
+        "學士後多元專長": "4",
+        "碩士班": "5",
+        "博士班": "6",
+        "學士後學位學程": "7",
+        "學士後系": "8",
+      };
+      return sysString
+        .split(",")
+        .map((item) => mapping[item] || item)
+        .join(",");
+    },
+    mapCourseCategories(categoryString) {
+      if (!categoryString) return null;
+      const mapping = {
+        "通識必修": "1",
+        "專業必修": "2",
+        "通識選修": "3",
+        "專業選修": "4",
+      };
+      return categoryString
+        .split(",")
+        .map((item) => mapping[item] || item)
+        .join(",");
     },
     clearKeyword() {
       this.localKeyword = "";
       this.updateUrlParams();
     },
+    updateUrlParams() {
+      const params = new URLSearchParams(window.location.search);
+      // 确保将关键字正确更新到 URL 参数
+      if (this.localKeyword && this.localKeyword.trim()) {
+        params.set("keyword", this.localKeyword.trim());
+      } else {
+        params.delete("keyword");
+      }
+      window.history.replaceState({}, "", `?${params.toString()}`);
+    },
+    
     updateSelectedDepts(newDepts) {
       this.$emit("update:selectedDepts", newDepts);
       this.updateUrlParams();
     },
-    
-    openMobileSearch() {
-      this.$emit("open-mobile-search");
-    },
     openSystemSelect() {
       this.$emit("open-system-select");
     },
-    
+    openMobileSearch() {
+      this.$emit("open-mobile-search");
+    },
     openPopup(option) {
       console.log("按下的按鈕：", option);
       this.isPopupVisible = true;
     },
-
     displaySelected(items, placeholder) {
       if (items.length === 0) {
         return placeholder;
@@ -173,31 +232,6 @@ export default {
       } else {
         return (items[0].name || items[0]) + " +" + (items.length - 1);
       }
-    },
-
-
-
-    updateUrlParams(clearDept = false) {
-      const params = new URLSearchParams(window.location.search);
-      if (this.localKeyword && this.localKeyword.trim()) {
-        params.set("keyword", this.localKeyword.trim());
-      } else {
-        params.delete("keyword");
-      }
-      if (this.selectedSystems.length > 0) {
-        const sysIds = this.selectedSystems.map((sys) => (sys.id ? sys.id : sys)).join(",");
-        params.set("sys", sysIds);
-      } else {
-        params.delete("sys");
-        if (clearDept) params.delete("dept");
-      }
-      if (this.selectedDepts.length > 0) {
-        const deptNames = this.selectedDepts.map((dept) => (dept.name ? dept.name : dept)).join(",");
-        params.set("dept", deptNames);
-      } else {
-        params.delete("dept");
-      }
-      window.history.replaceState({}, "", `?${params.toString()}`);
     },
   },
   mounted() {

@@ -24,8 +24,6 @@
       />
     </a>
 
-    
-
     <!-- 手機版 Person Icon -->
     <button
       class="md:hidden text-white text-2xl p-2 mr-4"
@@ -61,7 +59,7 @@
           v-show="activeDropdown === index"
           @mouseenter="cancelCloseDropdown"
           @mouseleave="delayCloseDropdown"
-          class="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg opacity-100 transition duration-300 z-50 p-0 m-0 list-none "
+          class="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg opacity-100 transition duration-300 z-50 p-0 m-0 list-none"
         >
           <li
             v-for="(item, idx) in dropdown.items"
@@ -80,8 +78,8 @@
       </div>
     </nav>
 
-<!-- Header Navigation Links -->
-<nav class="hidden md:flex items-center space-x-8 mr-8">
+    <!-- Header Navigation Links -->
+    <nav class="hidden md:flex items-center space-x-8 mr-8">
       <!-- 最新消息 -->
       <a
         @click="$emit('open-news')"
@@ -100,65 +98,80 @@
         幫助中心
       </a>
 
-      <!-- Person Icon + 登入 -->
+      <!-- 登入/已登入狀態 -->
       <a
+        v-if="!isAuthenticated"
         @click="$emit('open-login')"
         class="flex items-center text-white text-base cursor-pointer no-underline hover:text-opacity-80 transition duration-300"
       >
         <i class="bi bi-person mr-1"></i> 登入
       </a>
+      <div
+        v-else
+        class="relative flex items-center text-white text-base cursor-pointer no-underline hover:text-opacity-80 transition duration-300"
+        @click="togglePopup"
+      >
+        <i class="bi bi-person-circle mr-1"></i> {{ cookiesData.name || "admin" }}
+        <div
+          v-if="isPopupVisible"
+          class="absolute top-full right-0 mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-lg z-50 p-2"
+        >
+          <div v-if="cookiesData.role === 'admin'">
+            <a
+              href="/admin"
+              class="block p-2 text-black no-underline hover:bg-gray-100 rounded"
+            >
+              管理員設定介面
+            </a>
+            <button
+              @click="logout"
+              class="block w-full text-left p-2 text-red-500 no-underline hover:bg-red-100 rounded"
+            >
+              登出
+            </button>
+          </div>
+          <div v-else-if="cookiesData.role === 'student'">
+            <!-- <a
+              href="/profile"
+              class="block p-2 text-black no-underline hover:bg-gray-100 rounded"
+            >
+              個人資料設定
+            </a> -->
+            <a
+              href="/student"
+              class="block p-2 text-black no-underline hover:bg-gray-100 rounded"
+            >
+              收藏課程
+            </a>
+            <!-- <a
+              href="/schedule"
+              class="block p-2 text-black no-underline hover:bg-gray-100 rounded"
+            >
+              模擬排課
+            </a> -->
+            <button
+              @click="logout"
+              class="block w-full text-left p-2 text-red-500 no-underline hover:bg-red-100 rounded"
+            >
+              登出
+            </button>
+          </div>
+        </div>
+      </div>
     </nav>
 
-    <!-- 手機版菜單 (遮罩區域 + Menu 本體) -->
+    <!-- 點擊空白區域關閉彈出視窗 -->
     <div
-      v-if="isMobileMenuOpen"
-      class="fixed inset-0 bg-black bg-opacity-50 z-40"
-      @click="closeMobileMenu"
-    >
-      <!-- Menu 本體 -->
-      <div
-        class="h-full w-2/3 bg-white text-black shadow-lg transform transition-transform duration-500"
-        @click.stop
-      >
-        <ul class="list-none p-6 space-y-4 h-full flex flex-col justify-between">
-          <!-- Dropdown 項目 -->
-          <li v-for="(dropdown, index) in dropdowns" :key="index">
-            <div @click="toggleSubMenu(index)">
-              <div class="flex justify-between items-center cursor-pointer p-2 no-underline">
-                <span>{{ dropdown.title }}</span>
-                <svg
-                  class="w-4 h-4 transition-transform duration-300"
-                  :class="{ 'rotate-180': activeSubMenu === index }"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 12 12"
-                >
-                  <path d="M10 2.586 11.414 4 6 9.414.586 4 2 2.586l4 4z" />
-                </svg>
-              </div>
-              <ul v-show="activeSubMenu === index" class="pl-4 space-y-2">
-                <li
-                  v-for="(item, idx) in dropdown.items"
-                  :key="idx"
-                  class="hover:text-indigo-500"
-                >
-                  <a :href="item.link">{{ item.name }}</a>
-                </li>
-              </ul>
-            </div>
-          </li>
-          <!-- 底部資訊 -->
-          <div class="mt-auto text-center text-gray-600">
-            <a @click="$emit('open-news')" class="flex mb-2 no-underline">最新消息</a>
-            <a href="https://example.com" class="flex mb-2 no-underline">幫助中心</a>
-            <div class="inline-flex text-xs text-gray-400">第五組<br>北護課程查詢系統 v1.0</div>
-          </div>
-        </ul>
-      </div>
-    </div>
+      v-if="isPopupVisible"
+      class="fixed inset-0 bg-transparent"
+      @click="closePopup"
+    ></div>
   </header>
 </template>
 
 <script>
+import Cookies from "js-cookie";
+
 export default {
   data() {
     return {
@@ -167,11 +180,13 @@ export default {
       activeDropdown: null,
       activeSubMenu: null,
       dropdowns: [
-        { title: "相關連結", items: [{ name: "113-1選課行事曆", link: "https://teaching-acad.ntunhs.edu.tw/var/file/40/1040/attach/30/pta_57433_1288895_68818.pdf" }, { name: "校際選課", link: "#" }, { name: "課程抵免", link: "#" }, { name: "修課", link: "#" }] },
-        { title: "退選課程", items: [{ name: "停修申請填寫說明", link: "#" }, { name: "線上退課", link: "#" }] },
-        { title: "下載專區", items: [{ name: "紙本退課單", link: "#" }, { name: "英文畢業門檻申請表", link: "#" }, { name: "學分抵免申請表", link: "#" }, { name: "英文免修申請表", link: "#" }, { name: "大學部修讀研究所課程申請書", link: "#" }] },
-        { title: "常見問題", items: [{ name: "帳號登入問題", link: "#" }, { name: "課程查詢與篩選", link: "#" }, { name: "課程限制與先修條件", link: "#" }, { name: "學期相關規定", link: "#" }, { name: "系統錯誤與技術支援", link: "#" }] },
+        { title: "相關連結", items: [{ name: "113-1選課行事曆", link: "#" }] },
+        { title: "退選課程", items: [{ name: "停修申請填寫說明", link: "#" }] },
+        { title: "下載專區", items: [{ name: "紙本退課單", link: "#" }] },
       ],
+      cookiesData: this.getCookiesData(),
+      isAuthenticated: this.checkAuthentication(),
+      isPopupVisible: false,
     };
   },
   methods: {
@@ -191,10 +206,35 @@ export default {
     delayCloseDropdown() {
       this.closeTimeout = setTimeout(() => {
         this.activeDropdown = null;
-      }, 300); // 延遲 300ms
+      }, 300);
     },
     cancelCloseDropdown() {
       clearTimeout(this.closeTimeout);
+    },
+    getCookiesData() {
+      return {
+        name: Cookies.get("name"),
+        username: Cookies.get("username"),
+        role: Cookies.get("role"),
+        token: Cookies.get("auth_token"),
+      };
+    },checkAuthentication() {
+      const token = Cookies.get("auth_token");
+      return !!token;
+    },
+    togglePopup() {
+      this.isPopupVisible = !this.isPopupVisible;
+    },
+    closePopup() {
+      this.isPopupVisible = false;
+    },
+    logout() {
+      Cookies.remove("name");
+      Cookies.remove("username");
+      Cookies.remove("role");
+      Cookies.remove("auth_token");
+      this.isPopupVisible = false;
+      location.reload();
     },
   },
 };

@@ -87,15 +87,15 @@
             <div class="flex gap-2 flex-wrap">
               <button
                 v-for="content in courseContents"
-                :key="content"
-                @click="toggleSelection('content', content, selectedContents)"
+                :key="content.value"
+                @click="toggleSelection('content', content.value, selectedContents)"
                 class="shrink-0 select-none rounded-md border-[1.2px] px-4 py-2 text-sm font-medium transition active:scale-95"
                 :class="{
-                  'bg-green-600 text-white': selectedContents.includes(content),
-                  'border-gray-300 text-gray-700 hover:bg-gray-200': !selectedContents.includes(content),
+                  'bg-green-600 text-white': selectedContents.includes(content.value),
+                  'border-gray-300 text-gray-700 hover:bg-gray-200': !selectedContents.includes(content.value),
                 }"
               >
-                {{ content }}
+                {{ content.label }}
               </button>
             </div>
           </div>
@@ -178,21 +178,22 @@ export default {
         { label: "四年級", value: "4" },
       ],
       courseCategories: [
-        { label: "通識選修", value: "通識選修" },
-        { label: "通識必修", value: "通識必修" },
-        { label: "專業選修", value: "專業選修" },
-        { label: "專業必修", value: "專業必修" },
-      ],
+        { label: "通識選修", value: "3" },
+        { label: "通識必修", value: "1" },
+        { label: "專業選修", value: "4" },
+        { label: "專業必修", value: "2" },
+      ],    
       courseContents: [
-        "跨校",
-        "跨域課程",
-        "全英語授課",
-        "EMI全英語授課",
-        "同步遠距教學",
-        "非同步遠距教學",
-        "混合式遠距教學",
-        "遠距教學課程",
-        "遠距輔助課程",
+        { label: "跨校", value: "1" },
+        { label: "跨域課程", value: "2" },
+        { label: "全英語授課", value: "3" },
+        { label: "EMI全英語授課", value: "4" },
+        { label: "同步遠距教學", value: "5" },
+        { label: "非同步遠距教學", value: "6" },
+        { label: "混合式遠距教學", value: "7" },
+        { label: "遠距教學課程", value: "8" },
+        { label: "遠距輔助課程", value: "9" },
+        { label: "無", value: "無"}
       ],
       days: [
         { label: "一", value: "1" },
