@@ -186,10 +186,54 @@ export default {
     handleScroll() {
       this.showBackToTop = window.scrollY > 200;
     },
+    //---------------------------------------------------------------------------------
     addToSchedule(course) {
-      // 在其他組件中呼叫
-      this.$refs.mockCourse.addToSchedule(courseData);
+      // 從 localStorage 獲取現有課程
+      const currentCourses = JSON.parse(localStorage.getItem('selectedCourses') || '[]');
+      
+      // 檢查時間衝突
+      const hasConflict = this.checkTimeConflict(course, currentCourses);
+      if (hasConflict) {
+        alert('課程時間衝突！無法加入此課程。');
+        return;
+      }
+
+      // 檢查課程是否已存在
+      if (currentCourses.some(c => c._id === course._id)) {
+        alert('此課程已經加入！');
+        return;
+      }
+
+      // 新增課程
+      currentCourses.push(course);
+      localStorage.setItem('selectedCourses', JSON.stringify(currentCourses));
+      
+      // 發出事件通知 MockCourse 更新
+      this.$emit('course-added');
+      alert('成功加入課程！');
     },
+
+    checkTimeConflict(newCourse, existingCourses) {
+      const newCourseSlots = newCourse.節次.split(',').map(slot => ({
+        day: newCourse.星期,
+        slot: parseInt(slot)
+      }));
+
+      return existingCourses.some(existingCourse => {
+        const existingSlots = existingCourse.節次.split(',').map(slot => ({
+          day: existingCourse.星期,
+          slot: parseInt(slot)
+        }));
+
+        return newCourseSlots.some(newSlot => 
+          existingSlots.some(existingSlot => 
+            newSlot.day === existingSlot.day && 
+            newSlot.slot === existingSlot.slot
+          )
+        );
+      });
+    },
+    //-------------------------------------------------------------------------------------
     addToFavorites(course) {
       apiService.updateFavorite(this.cookiesData.username, course._id)
         .then(() => {

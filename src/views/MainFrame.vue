@@ -81,6 +81,7 @@
   import MobileSearchPopup from "../components/search/MobileSearchPopup.vue";
   import ButtonSearchPopup from "../components/search/ButtonSearchPopup.vue"; // 引入 ButtonSearchPopup
   import CourseList from "../components/main/CourseList.vue"; // 新增的課程列表元件
+  import MockCourse from "../components/student/MockCourse.vue";
   
   export default {
     components: {
@@ -94,6 +95,7 @@
       MobileSearchPopup,
       ButtonSearchPopup,
       CourseList,
+      MockCourse
     },
     data() {
       return {
@@ -193,7 +195,11 @@
       },
       handleDeptClearAll() {
         this.selectedDepts = [];
-      }
+      },
+      handleCourseAdded() {
+      // 當課程新增時，通知 MockCourse 重新載入數據
+      this.$refs.mockCourse.loadCourses();
+    }
     },
   };
   </script>
