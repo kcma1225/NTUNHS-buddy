@@ -21,7 +21,8 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 10
 # MongoDB 連接設置
 def connect_to_mongodb():
     try:
-        client = MongoClient("mongodb://mongo:27017/")
+        #client = MongoClient("mongodb://mongo:27017/")
+        client = MongoClient("mongodb://localhost:27017/") 
         print("成功連接到 MongoDB")
         return client
     except Exception as e:
@@ -421,21 +422,20 @@ async def delete_course(request: Request, course_request: Dict[str, str]):
 #=================================================================
 #學生:
 
-# 新增我的最愛
+
 @app.post("/add-to-favorites")
-async def add_to_favorites(request: Request, course_id: str):
+async def add_to_favorites(account_id: str, course_id: str):
     """
     新增課程到學生的收藏，僅允許學生操作。
     """
-    # 驗證角色為學生
-    #verify_role(request, "student")
-    
-    # 從 Token 取得學生帳號
-    token = request.cookies.get("auth_token")
-    payload = verify_token(token)
-    account_id = payload.get("sub")
+    # 檢查是否提供帳號和課程 ID
+    if not account_id or not course_id:
+        raise HTTPException(status_code=400, detail="請提供有效的帳號和課程 ID")
 
     # 確保學生收藏的資料存在
+    if account_id not in db_course_favorites.list_collection_names():
+        raise HTTPException(status_code=404, detail="帳號不存在")
+
     favorites_collection = db_course_favorites[account_id]
 
     # 檢查是否已存在相同的課程 ID
@@ -447,20 +447,14 @@ async def add_to_favorites(request: Request, course_id: str):
     favorites_collection.insert_one({"course_id": course_id})
     return {"status": "success", "message": "課程已成功加入收藏"}
 
-
-
 @app.get("/get-favorites-details")
-async def get_favorites_details(request: Request):
+async def get_favorites_details(account_id: str):
     """
     獲取學生收藏的課程詳細資料。
     """
-    # 驗證角色為學生
-    #verify_role(request, "student")
-
-    # 從 Token 取得學生帳號
-    token = request.cookies.get("auth_token")
-    payload = verify_token(token)
-    account_id = payload.get("sub")
+    # 直接使用傳入的 account_id 作為參數，不再驗證 Token
+    if not account_id:
+        raise HTTPException(status_code=400, detail="請提供有效的帳號")
 
     # 獲取收藏的課程 ID
     favorites_collection = db_course_favorites[account_id]
@@ -474,6 +468,7 @@ async def get_favorites_details(request: Request):
 
     if not valid_favorite_courses:
         return {"status": "success", "favorites": [], "message": "無收藏課程"}
+
     # 檢查 output_database 中的課程詳細資料
     detailed_courses = []
     valid_ids = set()  # 用於記錄有效的 course_id
@@ -503,40 +498,35 @@ async def get_favorites_details(request: Request):
     # 返回結果
     return {"status": "success", "favorites": detailed_courses}
 
-
-
-
 @app.post("/remove-from-favorites")
-async def remove_from_favorites(request: Request, favorite_request: Dict[str, str]):
-    #verify_role(request, "student")  # 確保使用者是學生
+async def remove_from_favorites(account_id: str, course_id: str):
+    """
+    從學生的收藏中移除指定課程。
+    """
+    # 確保提供帳號和課程 ID
+    if not account_id or not account_id.strip():
+        raise HTTPException(status_code=400, detail="請提供有效的帳號")
+    if not course_id or not course_id.strip():
+        raise HTTPException(status_code=400, detail="請提供有效的課程 ID")
 
-    # 從 Token 中提取學生帳號
-    token = request.cookies.get("auth_token")
-    if not token:
-        raise HTTPException(status_code=401, detail="未登入或 Token 遺失")
-
-    payload = verify_token(token)
-    account_id = payload.get("sub")
-
-    # 獲取收藏資料集合
+    # 確保學生的收藏資料集合存在
     favorites_collection = db_course_favorites[account_id]
 
-    # 提取要刪除的 _id
-    _id = favorite_request.get("_id")
-    if not _id or not _id.strip():
-        raise HTTPException(status_code=400, detail="請提供有效的 _id")
-
     try:
-        object_id = ObjectId(_id.strip())  # 確保 _id 格式正確
+        object_id = ObjectId(course_id.strip())  # 確保 course_id 格式正確
     except Exception:
-        raise HTTPException(status_code=400, detail="提供的 _id 無效")
+        raise HTTPException(status_code=400, detail="提供的課程 ID 無效")
 
-    # 檢查是否為有效的資料，刪除相應的 _id
+    # 刪除相應的課程 ID
     result = favorites_collection.delete_one({"course_id": str(object_id)})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="該課程未在我的最愛中")
 
     return {"status": "success", "message": "課程已成功從我的最愛中移除"}
+
+
+
+
 
 
 
