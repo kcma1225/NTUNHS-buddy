@@ -72,7 +72,7 @@ export default {
   data() {
     return {
       newsList: [
-        { timestamp: 1701686400000, date: "2024/08/05", title: "1131校際課程交換日期", content: "詳細資訊請參考以下連結：<a href='http://curri.aca.ntu.edu.tw/aca_doc/Alliance/allp.pdf'>點擊此處</a>" },
+        { timestamp: 1701686400000, date: "2024/08/05", title: "1131校際課程交換日期", content: "詳細資訊請參考以下連結：<a href='http://example.com/calendar'>點擊此處</a>" },
         { timestamp: 1701648000000, date: "2024/08/02", title: "113學年第一學期課程公告日期", content: "第一學期課程公告將於此日公布，敬請關注教務處網站。" },
         { timestamp: 1701648000001, date: "2024/08/02", title: "113學年度行事曆", content: "行事曆詳細資訊，請參閱校方公告：<a href='http://example.com/calendar'>點擊此處</a>" },
         ...Array.from({ length: 10 }, (_, i) => ({
