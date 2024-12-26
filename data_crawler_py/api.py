@@ -397,6 +397,29 @@ async def update_course(request: Request, course_request: Dict[str, dict]):
 
 
 
+@app.post("/delete-course")
+async def delete_course(course_id: str):
+    #verify_role(request, "admin")  # 確保是管理員
+     
+
+    try:
+        course_id = ObjectId(course_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="提供的 _id 無效")
+
+
+    # 遍歷所有學制 Collection
+    for collection_name in db.list_collection_names():
+        collection = db[collection_name]
+        result = collection.find_one_and_delete({"_id": course_id})
+        if result:
+            return {"status": "success", "message": "課程刪除成功"}
+
+    # 如果未找到對應的 _id
+    raise HTTPException(status_code=404, detail="課程未找到或刪除失敗")
+
+
+''''
 # Step 4: 根據 _id 刪除課程
 @app.post("/delete-course")
 async def delete_course(request: Request, course_request: Dict[str, str]):
@@ -418,6 +441,8 @@ async def delete_course(request: Request, course_request: Dict[str, str]):
 
     # 如果未找到對應的 _id
     raise HTTPException(status_code=404, detail="課程未找到或刪除失敗")
+'''
+
 
 #=================================================================
 #學生:
