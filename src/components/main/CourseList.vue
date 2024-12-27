@@ -192,6 +192,10 @@ export default {
       this.showBackToTop = window.scrollY > 200;
     },
     addToSchedule(course) {
+      if (!Cookies.get('role')){
+        alert('請先登入');
+        return
+      }
       const currentCourses = JSON.parse(localStorage.getItem('selectedCourses') || '[]');
       
       const hasConflict = this.checkTimeConflict(course, currentCourses);
@@ -232,6 +236,10 @@ export default {
       });
     },
     addToFavorites(course) {
+      if (!Cookies.get('role')){
+        alert('請先登入');
+        return
+      }
       apiService.updateFavorite(this.cookiesData.username, course._id)
         .then(() => {
           alert(`成功加入課程: ${course.課程名稱}`);
