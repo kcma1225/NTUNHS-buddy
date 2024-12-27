@@ -310,7 +310,7 @@ export default {
 </script>
 
 <style scoped>
-.min-h-[80px] {
-  min-height: 80px;
-}
+  .min-h-[80px] {
+    min-height: 80px;
+  }
 </style>
